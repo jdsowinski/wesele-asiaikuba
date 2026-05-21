@@ -660,8 +660,8 @@ button, input, select, textarea { font: inherit; }
 }
 .seat-map__canvas {
   position: relative;
-  width: 1100px;
-  height: 650px;
+  width: 1200px;
+  height: 700px;
   background: #e7e7e7;
   border-radius: var(--radius);
   border: 1px solid #d8d8d8;
@@ -709,13 +709,15 @@ button, input, select, textarea { font: inherit; }
   border: 1px solid #dccca8;
   border-radius: 4px;
   background: #f8f0d7;
-  min-height: 18px;
-  font-size: .62rem;
+  min-height: 30px;
+  min-width: 30px;
+  font-size: .7rem;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #7d603e;
-  padding: 0 .2rem;
+  padding: .2rem .3rem;
+  cursor: pointer;
 }
 .seat--match {
   background: #ffd86a;
@@ -1058,6 +1060,26 @@ button, input, select, textarea { font: inherit; }
 .quiz-option:hover { border-color: var(--gold); color: var(--text); background: var(--bg-alt); }
 .quiz-option input[type="radio"] { accent-color: var(--gold-dark); width: 16px; height: 16px; flex-shrink: 0; }
 .quiz-option.selected { border-color: var(--gold); background: linear-gradient(90deg, var(--bg-alt), var(--white)); color: var(--text); font-weight: 500; }
+.quiz-live {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: .9rem;
+}
+.quiz-live__verdict {
+  font-family: var(--font-sans);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: .45rem;
+}
+.quiz-live__verdict--ok { color: #1b7f3d; }
+.quiz-live__verdict--wrong { color: #b02a37; }
+.quiz-live__meta {
+  font-size: .8rem;
+  color: var(--text-light);
+  margin-bottom: .6rem;
+}
 
 /* Quiz submit area */
 .quiz-submit {
@@ -1195,10 +1217,19 @@ button, input, select, textarea { font: inherit; }
   color: var(--text-mid);
   margin-bottom: .75rem;
 }
+.galeria-upload-actions {
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
 
 .guest-gallery {
   padding: 4rem 0;
   background: var(--bg);
+}
+.guest-gallery--videos {
+  padding-top: 0;
 }
 .guest-gallery__header { text-align: center; margin-bottom: 2.5rem; }
 .photo-grid {
@@ -1244,6 +1275,103 @@ button, input, select, textarea { font: inherit; }
 }
 .photo-card--missing img           { display: none; }
 .photo-card--missing .photo-card__placeholder { opacity: 1; }
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .875rem;
+}
+@media (max-width: 1100px) {
+  .video-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .video-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.video-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #141414;
+  position: relative;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.video-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.video-card__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(255,255,255,.8);
+  background: linear-gradient(135deg, #2f2f2f, #101010);
+  opacity: 0;
+}
+.video-card--missing .video-card__placeholder { opacity: 1; }
+.video-card__play {
+  position: absolute;
+  inset: auto auto .6rem .6rem;
+  background: rgba(20, 10, 4, .72);
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: .35rem .6rem;
+}
+.modal--video-player {
+  width: min(960px, 100%);
+}
+.video-player {
+  width: 100%;
+  max-height: 72vh;
+  border-radius: 10px;
+  background: #000;
+}
+.modal--photo-lightbox {
+  width: min(1100px, 100%);
+  background: var(--bg);
+  box-shadow: var(--shadow-lg);
+  padding: 1rem;
+  position: relative;
+}
+.modal--photo-lightbox .modal__header {
+  position: absolute;
+  top: .55rem;
+  right: .55rem;
+  margin: 0;
+  z-index: 3;
+}
+.modal--photo-lightbox .modal__close {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(20, 10, 4, .65);
+  color: var(--white);
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.modal--photo-lightbox .modal__close:hover {
+  background: rgba(20, 10, 4, .82);
+  color: var(--white);
+}
+.photo-lightbox__image {
+  width: 100%;
+  max-height: calc(90vh - 24px);
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--bg-alt);
+  box-shadow: var(--shadow);
+}
 .photo-empty {
   text-align: center;
   padding: 4rem 1rem;

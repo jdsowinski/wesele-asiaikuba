@@ -10,6 +10,9 @@ const app         = express();
 const PORT        = process.env.PORT || 3001;
 const UPLOADS_DIR = process.env.UPLOADS_DIR || '/app/uploads';
 const FEEDBACK_FILE = path.join(UPLOADS_DIR, 'feedback.json');
+const VIDEOS_DIR = path.join(UPLOADS_DIR, 'videos');
+const SEATING_FILE = path.join(UPLOADS_DIR, 'seating.json');
+const SEATING_SEED_FILE = path.join(__dirname, '..', 'frontend', 'data', 'seating.json');
 
 // ── Middleware ───────────────────────────────────────────────────────────────
 
@@ -18,8 +21,16 @@ app.use(express.json({ limit: '1mb' }));
 
 // Ensure uploads directory exists
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+fs.mkdirSync(VIDEOS_DIR, { recursive: true });
 if (!fs.existsSync(FEEDBACK_FILE)) {
   fs.writeFileSync(FEEDBACK_FILE, '[]', 'utf8');
+}
+if (!fs.existsSync(SEATING_FILE)) {
+  if (fs.existsSync(SEATING_SEED_FILE)) {
+    fs.copyFileSync(SEATING_SEED_FILE, SEATING_FILE);
+  } else {
+    fs.writeFileSync(SEATING_FILE, JSON.stringify({ tables: [], zones: [] }, null, 2), 'utf8');
+  }
 }
 
 // ── Quiz data ────────────────────────────────────────────────────────────────
@@ -38,14 +49,19 @@ questions.forEach(q => {
 
 // ── Quiz endpoints ───────────────────────────────────────────────────────────
 
-// Return questions without revealing correct answers
+// Return questions with current stats for immediate feedback in UI
 app.get('/api/quiz/questions', (_req, res) => {
-  const publicQuestions = questions.map(({ id, question, options }) => ({
+  const publicQuestions = questions.map(({ id, question, options, correct }) => ({
     id,
     question,
     options,
+    correct,
+    counts: [...(answerCounts[id] || new Array(options.length).fill(0))],
   }));
-  res.json(publicQuestions);
+  res.json({
+    totalSubmissions,
+    questions: publicQuestions,
+  });
 });
 
 app.post('/api/quiz/submit', (req, res) => {
@@ -121,6 +137,32 @@ const upload = multer({
   },
 });
 
+const videoStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, VIDEOS_DIR),
+  filename: (_req, file, cb) => {
+    const ts = Date.now();
+    const rand = Math.floor(Math.random() * 1e6);
+    const ext = path.extname(file.originalname).toLowerCase() || '.mp4';
+    cb(null, `${ts}-${rand}${ext}`);
+  },
+});
+
+const videoUpload = multer({
+  storage: videoStorage,
+  limits: { fileSize: 5 * 1024 * 1024 * 1024 }, // 5 GB per file
+  fileFilter: (_req, file, cb) => {
+    if (/^video\//i.test(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        Object.assign(new Error('Tylko pliki wideo są dozwolone.'), {
+          code: 'NOT_VIDEO',
+        })
+      );
+    }
+  },
+});
+
 app.post('/api/photos/upload', upload.array('photos', 30), (req, res) => {
   const files = (req.files || []).map(f => ({
     filename: f.filename,
@@ -149,6 +191,39 @@ app.get('/api/photos', (_req, res) => {
     // directory may be empty or unreadable – return empty list
   }
   res.json({ photos });
+});
+
+app.post('/api/videos/upload', videoUpload.array('videos', 5), (req, res) => {
+  const files = (req.files || []).map(f => ({
+    filename: f.originalname,
+    url: `/uploads/videos/${f.filename}`,
+    size: f.size,
+    uploadedAt: new Date().toISOString(),
+    contentType: f.mimetype || 'video/mp4',
+  }));
+  res.json({ success: true, files });
+});
+
+app.get('/api/videos', (_req, res) => {
+  let videos = [];
+  try {
+    videos = fs
+      .readdirSync(VIDEOS_DIR)
+      .filter(f => /\.(mp4|mov|webm|m4v|ogg)$/i.test(f))
+      .map(f => {
+        const stats = fs.statSync(path.join(VIDEOS_DIR, f));
+        return {
+          filename: f,
+          url: `/uploads/videos/${f}`,
+          uploadedAt: stats.mtime.toISOString(),
+          contentType: 'video/mp4',
+        };
+      })
+      .sort((a, b) => (a.uploadedAt < b.uploadedAt ? 1 : -1));
+  } catch {
+    // ignore and return empty list
+  }
+  res.json({ videos });
 });
 
 // ── Feedback endpoint ───────────────────────────────────────────────────────
@@ -183,6 +258,32 @@ app.post('/api/feedback', (req, res) => {
   return res.status(201).json({ success: true });
 });
 
+// ── Seating endpoints ───────────────────────────────────────────────────────
+
+app.get('/api/seating', (_req, res) => {
+  try {
+    const raw = fs.readFileSync(SEATING_FILE, 'utf8');
+    const data = JSON.parse(raw);
+    return res.json(data);
+  } catch {
+    return res.status(500).json({ error: 'Nie udało się odczytać układu stołów.' });
+  }
+});
+
+app.put('/api/seating', (req, res) => {
+  const payload = req.body;
+  if (!payload || typeof payload !== 'object' || !Array.isArray(payload.tables)) {
+    return res.status(400).json({ error: 'Niepoprawny format danych seating.' });
+  }
+
+  try {
+    fs.writeFileSync(SEATING_FILE, JSON.stringify(payload, null, 2), 'utf8');
+    return res.json({ success: true });
+  } catch {
+    return res.status(500).json({ error: 'Nie udało się zapisać układu stołów.' });
+  }
+});
+
 // Serve uploaded files statically
 app.use('/uploads', express.static(UPLOADS_DIR));
 
@@ -196,7 +297,11 @@ app.get('/api/health', (_req, res) =>
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
-  const status = err.code === 'NOT_IMAGE' ? 415 : 500;
+  const status = err.code === 'NOT_IMAGE' || err.code === 'NOT_VIDEO'
+    ? 415
+    : err.code === 'LIMIT_FILE_SIZE'
+      ? 413
+      : 500;
   res.status(status).json({ error: err.message });
 });
 

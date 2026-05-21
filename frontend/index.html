@@ -15,7 +15,7 @@
       <ul class="nav__links">
         <li><a href="#historia">Nasza historia</a></li>
         <li><a href="#quiz">Quiz</a></li>
-        <li><a href="#galeria">Galeria</a></li>
+        <li><a href="galeria.html">Galeria</a></li>
         <li><a href="#stoly">Układ stołów</a></li>
         <li><a href="#feedback">Opinie</a></li>
       </ul>
@@ -188,7 +188,6 @@
           Wyszukaj swoje imię i nazwisko na interaktywnej mapie sali.
         </p>
         <a href="uklad-stolow.html" class="btn btn--primary">Otwórz mapę miejsc</a>
-        <a href="admin-stoly.html" class="btn btn--outline" style="margin-left:.6rem;">Panel admina</a>
       </div>
       <div class="seating-teaser__mini" aria-hidden="true">
         <div class="seating-teaser__mini-table"></div>
@@ -267,7 +266,7 @@
       try {
         const res  = await fetch('/api/photos');
         const data = await res.json();
-        const merged = [...data.photos.slice(0, 10), ...ASSET_PHOTOS_TEASER]
+        const merged = [...data.photos.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)).slice(0, 10), ...ASSET_PHOTOS_TEASER]
           .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
         teaserGrid.innerHTML = merged
           .map(p => `

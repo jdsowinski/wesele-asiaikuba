@@ -19,7 +19,7 @@
   },
   {
     "id": 4,
-    "question": "Kto pierwszy powiedział „kocham Cię"?",
+    "question": "Kto pierwszy powiedział kocham Cię?",
     "options": ["Asia", "Kuba", "Powiedzieli razem"],
     "correct": 1
   },
@@ -43,7 +43,7 @@
   },
   {
     "id": 8,
-    "question": "Kto częściej mówi „zaraz wychodzimy"?",
+    "question": "Kto częściej mówi zaraz wychodzimy?",
     "options": ["Asia", "Kuba", "Oboje jednocześnie"],
     "correct": 0
   },

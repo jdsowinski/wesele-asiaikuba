@@ -1,6 +1,6 @@
 'use strict';
 
-const STORAGE_KEY = 'weddingSeatingData';
+const API = '/api';
 
 const adminTables = document.getElementById('adminTables');
 const newGuestName = document.getElementById('newGuestName');
@@ -15,7 +15,6 @@ const adminEditCancel = document.getElementById('adminEditCancel');
 const adminEditSave = document.getElementById('adminEditSave');
 
 let seatingData = null;
-let baseData = null;
 let editingSeatRef = null;
 
 function normalize(value) {
@@ -35,8 +34,16 @@ function status(text) {
   adminStatus.textContent = text;
 }
 
-function saveLocal() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(seatingData));
+async function saveToDatabase() {
+  const res = await fetch(`${API}/seating`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(seatingData),
+  });
+
+  if (!res.ok) {
+    throw new Error('save-failed');
+  }
 }
 
 function ensureTableOneLayout(data) {
@@ -182,7 +189,7 @@ function closeEditModal() {
   adminEditModal.setAttribute('aria-hidden', 'true');
 }
 
-function saveEditedGuest() {
+async function saveEditedGuest() {
   if (!editingSeatRef) return;
   const seat = getSeat(editingSeatRef.tableId, editingSeatRef.seatIndex);
   if (!seat) {
@@ -191,13 +198,17 @@ function saveEditedGuest() {
   }
 
   seat.guest = adminEditInput.value.trim() || 'Do ustalenia';
-  saveLocal();
-  render();
-  closeEditModal();
-  status('Zmieniono dane gościa.');
+  try {
+    await saveToDatabase();
+    render();
+    closeEditModal();
+    status('Zmieniono dane gościa i zapisano w bazie.');
+  } catch {
+    status('Nie udało się zapisać zmian w bazie.');
+  }
 }
 
-function swapSeats(sourceTableId, sourceSeatIndex, targetTableId, targetSeatIndex) {
+async function swapSeats(sourceTableId, sourceSeatIndex, targetTableId, targetSeatIndex) {
   if (String(sourceTableId) === String(targetTableId) && sourceSeatIndex === targetSeatIndex) {
     return;
   }
@@ -210,9 +221,15 @@ function swapSeats(sourceTableId, sourceSeatIndex, targetTableId, targetSeatInde
   source.guest = target.guest;
   target.guest = sourceGuest;
 
-  saveLocal();
-  render();
-  status('Zmieniono miejsca gości.');
+  try {
+    await saveToDatabase();
+    render();
+    status('Zmieniono miejsca gości i zapisano w bazie.');
+  } catch {
+    target.guest = source.guest;
+    source.guest = sourceGuest;
+    status('Nie udało się zapisać zmiany miejsc.');
+  }
 }
 
 function findFirstFreeSeat() {
@@ -226,7 +243,7 @@ function findFirstFreeSeat() {
   return null;
 }
 
-function addGuestToFirstAvailable() {
+async function addGuestToFirstAvailable() {
   const guest = newGuestName.value.trim();
   if (!guest) {
     status('Wpisz imię i nazwisko gościa.');
@@ -239,9 +256,17 @@ function addGuestToFirstAvailable() {
     return;
   }
 
+  const oldGuest = free.table.seats[free.index].guest;
   free.table.seats[free.index].guest = guest;
-  saveLocal();
-  render();
+
+  try {
+    await saveToDatabase();
+    render();
+  } catch {
+    free.table.seats[free.index].guest = oldGuest;
+    status('Nie udało się dodać gościa (błąd zapisu do bazy).');
+    return;
+  }
 
   status(`Dodano: ${guest} - ${free.table.label || `Stół ${free.table.id}`}, miejsce ${free.table.seats[free.index].seat}`);
   newGuestName.value = '';
@@ -262,34 +287,45 @@ function exportJson() {
   status('Wyeksportowano JSON z aktualnym układem.');
 }
 
-function resetLocalChanges() {
-  const ok = confirm('Usunąć lokalne zmiany i wrócić do pliku bazowego?');
+async function reloadFromDatabase() {
+  const ok = confirm('Odświeżyć panel danymi z bazy? Niezapisane zmiany zostaną utracone.');
   if (!ok) return;
 
-  localStorage.removeItem(STORAGE_KEY);
-  seatingData = JSON.parse(JSON.stringify(baseData));
-  render();
-  status('Przywrócono bazowy układ stołów.');
+  try {
+    seatingData = await loadSeatingFromApi();
+    ensureTableOneLayout(seatingData);
+    render();
+    status('Wczytano najnowsze dane z bazy.');
+  } catch {
+    status('Nie udało się odświeżyć danych z bazy.');
+  }
+}
+
+async function loadSeatingFromApi() {
+  const response = await fetch(`${API}/seating`);
+  if (!response.ok) {
+    throw new Error('seating-fetch-failed');
+  }
+
+  const data = await response.json();
+  if (!data || typeof data !== 'object') {
+    throw new Error('seating-invalid');
+  }
+  return data;
 }
 
 async function init() {
-  const response = await fetch('data/seating.json');
-  baseData = await response.json();
-  ensureTableOneLayout(baseData);
-
-  const localRaw = localStorage.getItem(STORAGE_KEY);
-  if (localRaw) {
-    try {
-      seatingData = JSON.parse(localRaw);
-      ensureTableOneLayout(seatingData);
-      status('Wczytano lokalne zmiany admina.');
-    } catch {
-      seatingData = JSON.parse(JSON.stringify(baseData));
-      status('Nie udało się wczytać zmian lokalnych. Użyto danych bazowych.');
+  try {
+    const data = await loadSeatingFromApi();
+    if (!data || !Array.isArray(data.tables)) {
+      throw new Error('seating-invalid');
     }
-  } else {
-    seatingData = JSON.parse(JSON.stringify(baseData));
-    status('Wczytano dane bazowe.');
+
+    seatingData = data;
+    status('Wczytano dane z bazy.');
+  } catch {
+    status('Nie udało się wczytać danych stołów z bazy.');
+    return;
   }
 
   ensureTableOneLayout(seatingData);
@@ -299,7 +335,7 @@ async function init() {
 
 addGuestBtn.addEventListener('click', addGuestToFirstAvailable);
 exportBtn.addEventListener('click', exportJson);
-resetBtn.addEventListener('click', resetLocalChanges);
+resetBtn.addEventListener('click', reloadFromDatabase);
 adminEditCancel.addEventListener('click', closeEditModal);
 adminEditSave.addEventListener('click', saveEditedGuest);
 adminEditInput.addEventListener('keydown', event => {

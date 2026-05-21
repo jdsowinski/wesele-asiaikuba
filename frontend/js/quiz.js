@@ -5,6 +5,7 @@ const API = '/api';
 // ── State ────────────────────────────────────────────────────
 const userAnswers = {}; // { questionId: answerIndex }
 let questions     = [];
+let totalSubmissionsSnapshot = 0;
 
 // ── DOM refs ─────────────────────────────────────────────────
 const container    = document.getElementById('questionsContainer');
@@ -32,8 +33,16 @@ function getScoreMessage(score, total) {
 // ── Load questions ───────────────────────────────────────────
 async function loadQuestions() {
   try {
-    const res  = await fetch(`${API}/quiz/questions`);
-    questions  = await res.json();
+    const res  = await fetch(`${API}/quiz/questions?t=${Date.now()}`, { cache: 'no-store' });
+    const payload = await res.json();
+    if (Array.isArray(payload)) {
+      // Backward compatibility with older API shape before redeploy.
+      questions = payload;
+      totalSubmissionsSnapshot = 0;
+    } else {
+      questions = Array.isArray(payload?.questions) ? payload.questions : [];
+      totalSubmissionsSnapshot = Number(payload?.totalSubmissions || 0);
+    }
     renderQuestions(questions);
   } catch {
     container.innerHTML = '<p style="color:#dc3545;text-align:center;">Nie udało się załadować pytań. Upewnij się, że backend działa.</p>';
@@ -61,6 +70,7 @@ function renderQuestions(qs) {
           </label>
         `).join('')}
       </div>
+      <div class="quiz-live" aria-live="polite"></div>
     `;
 
     // Listen for selection
@@ -76,12 +86,79 @@ function renderQuestions(qs) {
         });
 
         card.classList.add('answered');
+        renderLiveFeedback(card, q, idx);
         updateProgress();
       });
     });
 
     container.appendChild(card);
   });
+}
+
+function renderLiveFeedback(card, question, selectedIndex) {
+  const live = card.querySelector('.quiz-live');
+  if (!live) return;
+
+  if (!Number.isInteger(question.correct)) {
+    live.innerHTML = '<div class="quiz-live__meta">Statystyki i poprawna odpowiedź pojawią się po odświeżeniu backendu.</div>';
+    return;
+  }
+
+  const baseCounts = Array.isArray(question.counts)
+    ? question.counts.slice(0, question.options.length).map(x => Number(x || 0))
+    : new Array(question.options.length).fill(0);
+  while (baseCounts.length < question.options.length) baseCounts.push(0);
+
+  // Show projected stats including current user's selected answer.
+  const counts = [...baseCounts];
+  if (Number.isInteger(selectedIndex) && selectedIndex >= 0 && selectedIndex < counts.length) {
+    counts[selectedIndex] += 1;
+  }
+  const totalVotes = counts.reduce((a, b) => a + b, 0);
+
+  const isCorrect = selectedIndex === question.correct;
+  const verdict = isCorrect
+    ? '✓ Dobra odpowiedź!'
+    : `✗ Poprawna odpowiedź: ${escHtml(question.options[question.correct] || '')}`;
+
+  const optionsHtml = question.options.map((opt, i) => {
+    const votes = counts[i] || 0;
+    const pct = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+    const isUser = i === selectedIndex;
+    const isGood = i === question.correct;
+
+    let barClass = 'result-bar__fill--gold';
+    let tags = '';
+    if (isGood) {
+      barClass = 'result-bar__fill--green';
+      tags += '<span class="tag tag--correct">✓ poprawna</span>';
+    }
+    if (isUser && !isGood) {
+      barClass = 'result-bar__fill--blue';
+      tags += '<span class="tag tag--wrong">✗ Twoja</span>';
+    }
+    if (isUser && isGood) {
+      tags = '<span class="tag tag--correct">✓ Twoja odpowiedź</span>';
+    }
+
+    return `
+      <div class="result-option">
+        <div class="result-option__labels">
+          <span class="result-option__name">${escHtml(opt)} ${tags}</span>
+          <span class="result-option__pct">${pct}%</span>
+        </div>
+        <div class="result-bar">
+          <div class="result-bar__fill ${barClass}" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  live.innerHTML = `
+    <div class="quiz-live__verdict ${isCorrect ? 'quiz-live__verdict--ok' : 'quiz-live__verdict--wrong'}">${verdict}</div>
+    <div class="quiz-live__meta">Szacowane statystyki po Twoim wyborze (na bazie ${totalSubmissionsSnapshot} oddanych quizów):</div>
+    ${optionsHtml}
+  `;
 }
 
 // ── Progress bar ─────────────────────────────────────────────

@@ -14,9 +14,8 @@
       <a href="index.html" class="nav__back">← Strona główna</a>
       <ul class="nav__links">
         <li><a href="index.html#historia">Historia</a></li>
-        <li><a href="index.html#quiz">Quiz</a></li>
+        <li><a href="quiz.html">Quiz</a></li>
         <li><a href="index.html#galeria">Galeria</a></li>
-        <li><a href="admin-stoly.html">Panel admina</a></li>
         <li><a href="index.html#feedback">Opinie</a></li>
       </ul>
     </div>
@@ -39,7 +38,9 @@
       </div>
 
       <div class="seat-map" id="seatMap">
-        <div class="seat-map__canvas" id="seatMapCanvas"></div>
+        <div class="seat-map__canvas" id="seatMapCanvas">
+          <svg id="ukladSvg" style="position:absolute;top:0;left:0;pointer-events:none;"></svg>
+        </div>
       </div>
 
       <div class="seat-legend">
@@ -54,6 +55,7 @@
     <p class="footer__date">27 · 06 · 2026</p>
   </footer>
 
+  <script src="js/uklad-stolow.js"></script>
   <script src="js/seating.js"></script>
 </body>
 </html>

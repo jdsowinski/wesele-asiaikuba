@@ -1,6 +1,6 @@
 'use strict';
 
-const STORAGE_KEY = 'weddingSeatingData';
+const API = '/api';
 
 const seatMapCanvas = document.getElementById('seatMapCanvas');
 const guestSearch = document.getElementById('guestSearch');
@@ -23,6 +23,12 @@ function normalize(value) {
 function isSeatTaken(guest) {
   const n = normalize(guest);
   return n !== '' && n !== 'do ustalenia' && n !== 'wolne' && n !== 'tbd';
+}
+
+function normalizeSeatData(table) {
+  if (Array.isArray(table.seats)) return table.seats;
+  const n = Number(table.seats) || 0;
+  return Array.from({ length: n }, (_, i) => ({ seat: String(i + 1), guest: '' }));
 }
 
 function ensureTableOneLayout(data) {
@@ -60,52 +66,67 @@ function getSeatDisplayEntries(table) {
     number: Number.parseInt(seat.seat, 10),
   }));
 
-  if (String(table.id) !== '1') {
-    return entries;
-  }
+  // Round and head tables: natural order
+  if (table.type === 'round' || table.type === 'head') return entries;
 
-  // Table 1 on public map: first row odd seats, second row even seats.
-  return [...entries].sort((a, b) => {
-    const aNum = Number.isFinite(a.number) ? a.number : 10000 + a.sourceIndex;
-    const bNum = Number.isFinite(b.number) ? b.number : 10000 + b.sourceIndex;
-    const aGroup = aNum % 2 === 1 ? 0 : 1;
-    const bGroup = bNum % 2 === 1 ? 0 : 1;
-    if (aGroup !== bGroup) return aGroup - bGroup;
-    return aNum - bNum;
-  });
+  // Rect tables: even-indexed seats (1,3,5…) on one side, odd-indexed (2,4,6…) on the other
+  // Vertical (2 cols): natural order already gives col-by-col layout
+  if (table.orientation === 'v') return entries;
+
+  // Horizontal: show all sideA (even indices = seats 1,3,5…) first row,
+  //             then all sideB (odd indices = seats 2,4,6…) second row
+  const sideA = entries.filter(e => e.sourceIndex % 2 === 0);
+  const sideB = entries.filter(e => e.sourceIndex % 2 === 1);
+  return [...sideA, ...sideB];
 }
 
 function renderTable(table) {
+  if (table.type === 'food') return; // food tables have no seats
+  // Normalize seats: number → array of {seat, guest}
+  table.seats = normalizeSeatData(table);
+
   const tableEl = document.createElement('div');
-  tableEl.className = `map-table map-table--${table.type === 'head' ? 'head' : 'long'}`;
+  tableEl.className = 'map-table';
   tableEl.style.left = `${table.x}px`;
   tableEl.style.top = `${table.y}px`;
-  tableEl.style.width = `${table.width}px`;
-  tableEl.style.height = `${table.height}px`;
-  if (table.columns && Number.isInteger(table.columns) && table.columns > 0) {
-    tableEl.style.gridTemplateColumns = `repeat(${table.columns}, minmax(0, 1fr))`;
+  if (table.width) tableEl.style.width = `${table.width}px`;
+  if (table.height) tableEl.style.height = `${table.height}px`;
+
+  // Compute grid columns from type / orientation / seat count
+  const n = table.seats.length;
+  let cols;
+  if (table.type === 'head' || (table.columns && Number.isInteger(table.columns) && table.columns > 0)) {
+    cols = table.columns || 6;
+  } else if (table.orientation === 'v') {
+    cols = 2;
+  } else {
+    // horizontal: two rows, ceil(n/2) columns
+    cols = Math.max(2, Math.ceil(n / 2));
   }
+  tableEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
 
   const title = document.createElement('span');
   title.className = 'map-table__title';
-  title.textContent = table.label || `Stół ${table.id}`;
+  title.textContent = table.label || table.name || `Stół ${table.id}`;
   tableEl.appendChild(title);
 
   getSeatDisplayEntries(table).forEach(entry => {
     const seat = entry.seat;
     const guestName = isSeatTaken(seat.guest) ? seat.guest : '';
+    const tableDisplay = table.label || table.name || `Stół ${table.id}`;
     const seatEl = document.createElement('div');
     seatEl.className = 'seat';
     seatEl.textContent = seat.seat;
     seatEl.title = guestName
-      ? `${guestName} · Stół ${table.id}, miejsce ${seat.seat}`
-      : `Wolne miejsce · Stół ${table.id}, miejsce ${seat.seat}`;
+      ? `${guestName} · ${tableDisplay}, miejsce ${seat.seat}`
+      : `Wolne miejsce · ${tableDisplay}, miejsce ${seat.seat}`;
     seatEl.dataset.guest = guestName;
     seatEl.dataset.table = table.id;
+    seatEl.dataset.tableName = tableDisplay;
     seatEl.dataset.seat = seat.seat;
     seatEl.addEventListener('click', () => {
       focusSeat(seatEl);
-      showSeatToast(`${seatEl.dataset.guest} - stół ${seatEl.dataset.table}, miejsce ${seatEl.dataset.seat}`);
+      showSeatToast(`${seatEl.dataset.guest} - ${seatEl.dataset.tableName}, miejsce ${seatEl.dataset.seat}`);
     });
     tableEl.appendChild(seatEl);
     renderedSeats.push(seatEl);
@@ -122,7 +143,7 @@ function focusSeat(seat) {
   clearMatches();
   seat.classList.add('seat--match');
   seat.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-  searchStatus.textContent = `Znaleziono: ${seat.dataset.guest} - stół ${seat.dataset.table}, miejsce ${seat.dataset.seat}`;
+  searchStatus.textContent = `Znaleziono: ${seat.dataset.guest} - ${seat.dataset.tableName}, miejsce ${seat.dataset.seat}`;
 }
 
 function showSeatToast(message) {
@@ -159,8 +180,7 @@ function renderSuggestions(matches) {
     const item = document.createElement('button');
     item.type = 'button';
     item.className = 'seating-suggestion';
-    item.innerHTML = `<strong>${seat.dataset.guest}</strong> - stół ${seat.dataset.table}, miejsce ${seat.dataset.seat}`;
-    item.addEventListener('click', () => {
+    item.innerHTML = `<strong>${seat.dataset.guest}</strong> - ${seat.dataset.tableName}, miejsce ${seat.dataset.seat}`;    item.addEventListener('click', () => {
       guestSearch.value = seat.dataset.guest;
       guestSuggestions.innerHTML = '';
       focusSeat(seat);
@@ -204,19 +224,14 @@ function clearSearch() {
 
 async function initSeating() {
   try {
-    let data = null;
-    const localRaw = localStorage.getItem(STORAGE_KEY);
-    if (localRaw) {
-      try {
-        data = JSON.parse(localRaw);
-      } catch {
-        data = null;
-      }
+    const apiResponse = await fetch(`${API}/seating`);
+    if (!apiResponse.ok) {
+      throw new Error('seating-api-failed');
     }
 
-    if (!data) {
-      const response = await fetch('data/seating.json');
-      data = await response.json();
+    const data = await apiResponse.json();
+    if (!data || !Array.isArray(data.tables)) {
+      throw new Error('seating-invalid');
     }
 
     ensureTableOneLayout(data);

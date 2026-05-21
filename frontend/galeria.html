@@ -15,8 +15,8 @@
       <a href="index.html" class="nav__back">← Strona główna</a>
       <ul class="nav__links">
         <li><a href="index.html#historia">Historia</a></li>
-        <li><a href="index.html#quiz">Quiz</a></li>
-        <li><a href="index.html#stoly">Układ stołów</a></li>
+        <li><a href="quiz.html">Quiz</a></li>
+        <li><a href="uklad-stolow.html">Układ stołów</a></li>
         <li><a href="index.html#feedback">Opinie</a></li>
         <li><a href="quiz.html">Rozwiąż quiz</a></li>
       </ul>
@@ -33,9 +33,14 @@
   <!-- ══ Upload bar ═══════════════════════════════════════════ -->
   <div class="galeria-upload-bar">
     <p>Masz zdjęcia z wesela? Wrzuć je tutaj i stwórzmy razem naszą wspólną historię!</p>
-    <button class="btn btn--primary" id="openUploadModal">
-      📸 Prześlij zdjęcia
-    </button>
+    <div class="galeria-upload-actions">
+      <button class="btn btn--primary" id="openUploadModal">
+        📸 Prześlij zdjęcia
+      </button>
+      <button class="btn btn--outline" id="openVideoUploadModal" type="button">
+        🎬 Prześlij filmy
+      </button>
+    </div>
   </div>
 
   <!-- ══ Guest photo gallery ══════════════════════════════════ -->
@@ -52,6 +57,23 @@
         <div class="photo-empty">
           <div class="photo-empty__icon">📷</div>
           <p>Ładowanie zdjęć…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="guest-gallery guest-gallery--videos" id="guestVideos">
+    <div class="container">
+      <div class="guest-gallery__header">
+        <span class="section-label">Filmy gości</span>
+        <h2 class="section-title">Najświeższe filmiki</h2>
+        <div class="section-divider"><span>♥</span></div>
+      </div>
+
+      <div class="video-grid" id="videoGrid">
+        <div class="photo-empty">
+          <div class="photo-empty__icon">🎬</div>
+          <p>Ładowanie filmów…</p>
         </div>
       </div>
     </div>
@@ -248,6 +270,50 @@
         <button class="btn btn--outline" id="cancelUpload">Anuluj</button>
         <button class="btn btn--primary" id="sendUpload" disabled>Wyślij zdjęcia</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="videoUploadModal" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="videoModalTitle">Prześlij filmy 🎬</h2>
+        <button class="modal__close" id="closeVideoModal" aria-label="Zamknij">&times;</button>
+      </div>
+
+      <div class="drop-zone" id="videoDropZone" role="button" tabindex="0" aria-label="Kliknij lub przeciągnij filmy">
+        <div class="drop-zone__icon">☁️</div>
+        <p class="drop-zone__text">Kliknij lub przeciągnij filmy tutaj</p>
+        <p class="drop-zone__hint">MP4, MOV, WEBM - maks. 5 GB na plik</p>
+        <input type="file" id="videoFileInput" accept="video/*" multiple hidden />
+      </div>
+
+      <div class="upload-preview" id="videoUploadPreview"></div>
+
+      <p class="upload-status" id="videoUploadStatus"></p>
+
+      <div class="upload-actions">
+        <button class="btn btn--outline" id="cancelVideoUpload" type="button">Anuluj</button>
+        <button class="btn btn--primary" id="sendVideoUpload" type="button" disabled>Wyślij filmy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="videoPlayerModal" role="dialog" aria-modal="true" aria-labelledby="videoPlayerTitle">
+    <div class="modal modal--video-player">
+      <div class="modal__header">
+        <!-- <h2 class="modal__title" id="videoPlayerTitle">Odtwarzanie filmu</h2> -->
+        <button class="modal__close" id="closeVideoPlayerModal" aria-label="Zamknij">&times;</button>
+      </div>
+      <video id="videoPlayer" controls preload="metadata" class="video-player" playsinline></video>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="photoLightboxModal" role="dialog" aria-modal="true" aria-label="Powiększone zdjęcie">
+    <div class="modal modal--photo-lightbox">
+      <div class="modal__header">
+        <button class="modal__close" id="closePhotoLightboxModal" aria-label="Zamknij">&times;</button>
+      </div>
+      <img id="photoLightboxImage" class="photo-lightbox__image" alt="Powiększone zdjęcie z galerii" />
     </div>
   </div>
 

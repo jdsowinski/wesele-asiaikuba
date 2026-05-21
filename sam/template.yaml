@@ -12,22 +12,30 @@ Parameters:
   ApiDomain:
     Type: String
     Default: api-wesele.asiaikuba.pl
+  AssetsDomain:
+    Type: String
+    Default: assets-wesele.asiaikuba.pl
+  AdminDomain:
+    Type: String
+    Default: admin-wesele.asiaikuba.pl
   CloudFrontCertificateArn:
     Type: String
     Default: ''
-    Description: ACM cert ARN in us-east-1 for wesele.asiaikuba.pl
+    Description: ACM cert ARN in us-east-1 for *.asiaikuba.pl (CloudFront)
   ApiRegionalCertificateArn:
     Type: String
     Default: ''
-    Description: ACM cert ARN in current region for api-wesele.asiaikuba.pl
+    Description: ACM cert ARN in eu-central-1 for *.asiaikuba.pl (API Gateway)
 
 Conditions:
   HasCfCert: !Not [!Equals [!Ref CloudFrontCertificateArn, '']]
+  HasAssetsCfCert: !Not [!Equals [!Ref CloudFrontCertificateArn, '']]
   HasApiCert: !Not [!Equals [!Ref ApiRegionalCertificateArn, '']]
+  HasAdminCert: !Not [!Equals [!Ref CloudFrontCertificateArn, '']]
 
 Globals:
   Function:
-    Runtime: nodejs20.x
+    Runtime: nodejs22.x
     Timeout: 30
     MemorySize: 512
     Architectures:
@@ -38,7 +46,9 @@ Globals:
         FEEDBACK_TABLE: !Ref FeedbackTable
         SEATING_TABLE: !Ref SeatingTable
         PHOTOS_TABLE: !Ref PhotosTable
+        VIDEOS_TABLE: !Ref VideosTable
         UPLOADS_BUCKET: !Ref UploadsBucket
+        ASSETS_BASE_URL: !Sub 'https://${AssetsCloudFrontDistribution.DomainName}'
 
 Resources:
   FrontendBucket:
@@ -77,6 +87,67 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  AssetsOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${ProjectName}-assets-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  ApiCorsResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub '${ProjectName}-api-cors'
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          AccessControlAllowHeaders:
+            Items: ['*']
+          AccessControlAllowMethods:
+            Items: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          AccessControlAllowOrigins:
+            Items: ['*']
+          AccessControlMaxAgeSec: 600
+          OriginOverride: false
+
+  AdminOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${ProjectName}-admin-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  AdminFrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${AWS::AccountId}-admin'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  AdminFrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AdminFrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAdminCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${AdminFrontendBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${AdminCloudFrontDistribution}'
+
   FrontendBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -93,6 +164,23 @@ Resources:
             Condition:
               StringEquals:
                 AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  UploadsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UploadsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowAssetsCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${UploadsBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${AssetsCloudFrontDistribution}'
 
   QuizStatsTable:
     Type: AWS::DynamoDB::Table
@@ -142,13 +230,25 @@ Resources:
         - AttributeName: photoId
           KeyType: HASH
 
+  VideosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TableName: !Sub '${ProjectName}-videos'
+      AttributeDefinitions:
+        - AttributeName: videoId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: videoId
+          KeyType: HASH
+
   WeddingHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: prod
       CorsConfiguration:
         AllowHeaders: ['*']
-        AllowMethods: [GET, POST, PUT, OPTIONS]
+        AllowMethods: [GET, POST, PUT, DELETE, OPTIONS]
         AllowOrigins: ['*']
 
   WeddingApiFunction:
@@ -166,6 +266,8 @@ Resources:
             TableName: !Ref SeatingTable
         - DynamoDBCrudPolicy:
             TableName: !Ref PhotosTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VideosTable
         - S3CrudPolicy:
             BucketName: !Ref UploadsBucket
       Events:
@@ -235,6 +337,10 @@ Resources:
             ViewerProtocolPolicy: redirect-to-https
             AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
             CachedMethods: [GET, HEAD, OPTIONS]
+            MinTTL: 0
+            DefaultTTL: 0
+            MaxTTL: 0
+            ResponseHeadersPolicyId: !Ref ApiCorsResponseHeadersPolicy
             ForwardedValues:
               QueryString: true
               Headers:
@@ -257,15 +363,93 @@ Resources:
             MinimumProtocolVersion: TLSv1.2_2021
           - CloudFrontDefaultCertificate: true
 
+  AssetsCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        Aliases: !If [HasAssetsCfCert, [!Ref AssetsDomain], !Ref AWS::NoValue]
+        Origins:
+          - Id: UploadsS3Origin
+            DomainName: !GetAtt UploadsBucket.RegionalDomainName
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref AssetsOriginAccessControl
+        DefaultCacheBehavior:
+          TargetOriginId: UploadsS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        ViewerCertificate: !If
+          - HasAssetsCfCert
+          - AcmCertificateArn: !Ref CloudFrontCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+
+  AdminCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        Aliases: !If [HasAdminCert, [!Ref AdminDomain], !Ref AWS::NoValue]
+        Origins:
+          - Id: AdminS3Origin
+            DomainName: !GetAtt AdminFrontendBucket.RegionalDomainName
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref AdminOriginAccessControl
+        DefaultCacheBehavior:
+          TargetOriginId: AdminS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        ViewerCertificate: !If
+          - HasAdminCert
+          - AcmCertificateArn: !Ref CloudFrontCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+
 Outputs:
   FrontendBucketName:
     Value: !Ref FrontendBucket
+  AdminBucketName:
+    Value: !Ref AdminFrontendBucket
   UploadsBucketName:
     Value: !Ref UploadsBucket
   CloudFrontDomainName:
     Value: !GetAtt CloudFrontDistribution.DomainName
   CloudFrontDistributionId:
     Value: !Ref CloudFrontDistribution
+  AssetsCloudFrontDomainName:
+    Value: !GetAtt AssetsCloudFrontDistribution.DomainName
+  AssetsCloudFrontDistributionId:
+    Value: !Ref AssetsCloudFrontDistribution
+  AdminCloudFrontDomainName:
+    Value: !GetAtt AdminCloudFrontDistribution.DomainName
+  AdminCloudFrontDistributionId:
+    Value: !Ref AdminCloudFrontDistribution
   ApiInvokeUrl:
     Value: !Sub 'https://${WeddingHttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
   ApiCustomDomainTarget:
