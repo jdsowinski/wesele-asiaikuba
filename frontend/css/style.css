@@ -704,6 +704,7 @@ button, input, select, textarea { font: inherit; }
   font-family: var(--font-sans);
   font-weight: 700;
   color: var(--text-mid);
+  white-space: nowrap;
 }
 .seat {
   border: 1px solid #dccca8;

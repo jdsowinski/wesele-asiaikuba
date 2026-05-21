@@ -50,6 +50,18 @@ export function renderSchemat(main) {
       const radius = Math.max(50, Math.round(count * (CELL_W + 6) / (2 * Math.PI)));
       return { radius };
     }
+    // Head table: all seats on ONE side only
+    if (type === 'head') {
+      if (orient === 'v') {
+        const width = CELL_W + 38 + PAD * 2;                              // 1 col + bar
+        const height = count * CELL_H + (count - 1) * GAP + PAD * 2;
+        return { width, height };
+      } else {
+        const width = count * CELL_W + (count - 1) * GAP + PAD * 2;
+        const height = CELL_H + 28 + PAD * 2;                             // 1 row + bar
+        return { width, height };
+      }
+    }
     if (orient === 'v') {
       const rows = Math.ceil(count / 2);
       const width = 2 * CELL_W + GAP + 38 + PAD * 2;
@@ -204,7 +216,7 @@ export function renderSchemat(main) {
     const props = document.getElementById('tableProps');
     if (!table) { props.innerHTML = '<em>Kliknij stół, aby edytować</em>'; return; }
 
-    // Food table — only name + color
+    // Food table — name + color + size
     if (table.type === 'food') {
       props.innerHTML = `
         <div>
@@ -216,9 +228,15 @@ export function renderSchemat(main) {
         </div>
         <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;">
           Kolor: <input type="color" id="colorInput" value="${table.color || '#d4edda'}" style="width:60px;height:32px;cursor:pointer;border:none;border-radius:4px;">
+        </div>
+        <div style="margin-top:.5rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+          <label style="font-size:.85rem;">Szerokość: <input type="number" id="widthInput" min="1" max="20" step="0.5" value="${Math.round((table.width || 200) / 50 * 10) / 10}" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;"> j.</label>
+          <label style="font-size:.85rem;">Wysokość: <input type="number" id="heightInput" min="1" max="20" step="0.5" value="${Math.round((table.height || 60) / 50 * 10) / 10}" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;"> j.</label>
         </div>`;
       document.getElementById('nameInput').oninput = e => { table.name = e.target.value; redraw(); };
       document.getElementById('colorInput').oninput = e => { table.color = e.target.value; redraw(); };
+      document.getElementById('widthInput').oninput = e => { table.width = Math.round(Math.max(1, Math.min(20, Number(e.target.value) || 4)) * 50); redraw(); };
+      document.getElementById('heightInput').oninput = e => { table.height = Math.round(Math.max(1, Math.min(20, Number(e.target.value) || 1.2)) * 50); redraw(); };
       document.getElementById('delTable').onclick = () => { tables = tables.filter(t => t.id !== table.id); selectedId = null; redraw(); showProps(null); };
       return;
     }

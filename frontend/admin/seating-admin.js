@@ -191,6 +191,17 @@ export function renderSeating(main) {
 
   /* ---- TABLE CARD ---- */
 
+  function renderHeadTable(table, card) {
+    const seats = table.seats;
+    const isVert = table.orientation === 'v';
+    const wrap = document.createElement('div');
+    wrap.style.cssText = isVert
+      ? 'display:flex;flex-direction:column;gap:.4rem;align-items:flex-start;'
+      : 'display:flex;flex-wrap:wrap;gap:.4rem;';
+    seats.forEach((seat, i) => wrap.appendChild(makeSeatEl(seat, table.id, i, 'rect')));
+    card.appendChild(wrap);
+  }
+
   function renderTableCard(table) {
     const card = document.createElement('div');
     card.className = 'admin-seating-table';
@@ -211,6 +222,8 @@ export function renderSeating(main) {
 
     if (table.type === 'round') {
       renderRoundTable(table, card);
+    } else if (table.type === 'head') {
+      renderHeadTable(table, card);
     } else {
       renderRectTable(table, card);
     }

@@ -89,14 +89,17 @@ function renderTable(table) {
   tableEl.className = 'map-table';
   tableEl.style.left = `${table.x}px`;
   tableEl.style.top = `${table.y}px`;
-  if (table.width) tableEl.style.width = `${table.width}px`;
-  if (table.height) tableEl.style.height = `${table.height}px`;
+  if (table.width && table.type !== 'head') tableEl.style.width = `${table.width}px`;
+  if (table.height && table.type !== 'head') tableEl.style.height = `${table.height}px`;
 
   // Compute grid columns from type / orientation / seat count
   const n = table.seats.length;
   let cols;
-  if (table.type === 'head' || (table.columns && Number.isInteger(table.columns) && table.columns > 0)) {
-    cols = table.columns || 6;
+  if (table.type === 'head') {
+    // All seats on one side only — single row or single column
+    cols = table.orientation === 'v' ? 1 : n;
+  } else if (table.columns && Number.isInteger(table.columns) && table.columns > 0) {
+    cols = table.columns;
   } else if (table.orientation === 'v') {
     cols = 2;
   } else {
