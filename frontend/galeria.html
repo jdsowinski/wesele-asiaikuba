@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galeria – Asia & Kuba</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ══ Navigation ══════════════════════════════════════════ -->
+  <nav class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="nav__brand">Asia &amp; Kuba</a>
+      <a href="index.html" class="nav__back">← Strona główna</a>
+      <ul class="nav__links">
+        <li><a href="index.html#historia">Historia</a></li>
+        <li><a href="index.html#quiz">Quiz</a></li>
+        <li><a href="index.html#stoly">Układ stołów</a></li>
+        <li><a href="index.html#feedback">Opinie</a></li>
+        <li><a href="quiz.html">Rozwiąż quiz</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══ Page header ═════════════════════════════════════════ -->
+  <header class="page-header">
+    <span class="section-label">Wasze zdjęcia</span>
+    <h1 class="section-title">Pamiątkowa galeria</h1>
+    <p>Każde zdjęcie to chwila, którą chcemy pamiętać. Dziękujemy, że jesteście z nami! ♥</p>
+  </header>
+
+  <!-- ══ Upload bar ═══════════════════════════════════════════ -->
+  <div class="galeria-upload-bar">
+    <p>Masz zdjęcia z wesela? Wrzuć je tutaj i stwórzmy razem naszą wspólną historię!</p>
+    <button class="btn btn--primary" id="openUploadModal">
+      📸 Prześlij zdjęcia
+    </button>
+  </div>
+
+  <!-- ══ Guest photo gallery ══════════════════════════════════ -->
+  <section class="guest-gallery" id="guestGallery">
+    <div class="container">
+      <div class="guest-gallery__header">
+        <span class="section-label">Galeria gości</span>
+        <h2 class="section-title">Nasze wspólne chwile</h2>
+        <div class="section-divider"><span>♥</span></div>
+      </div>
+
+      <div class="photo-grid" id="photoGrid">
+        <!-- Filled by gallery.js -->
+        <div class="photo-empty">
+          <div class="photo-empty__icon">📷</div>
+          <p>Ładowanie zdjęć…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Gallery end text ═════════════════════════════════════ -->
+  <div class="gallery-end-text">
+    <p>„A teraz czas dopisać kolejne wspomnienia — razem z Wami 📸"</p>
+  </div>
+
+  <!-- ══ Nasza historia w zdjęciach ══════════════════════════ -->
+  <section class="historia-photos" id="historiaPhotos">
+    <div class="container">
+      <div class="historia-photos__header">
+        <span class="section-label">Chronologicznie</span>
+        <h2 class="section-title">Nasza historia w zdjęciach</h2>
+        <div class="section-divider"><span>♥</span></div>
+        <p style="color:var(--text-mid);max-width:480px;margin:0 auto;">
+          Kilka zdjęć, które opowiadają naszą historię – od pierwszego wspólnego ujęcia aż po przygotowania do ślubu.
+        </p>
+      </div>
+
+      <div class="historia-timeline-photos">
+
+        <!--
+          PHOTO PLACEHOLDERS:
+          Replace each img src with your real photo.
+          Place photos in frontend/assets/historia/ and update the paths below.
+        -->
+
+        <!-- 1 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">2018</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia1/800/600"
+              alt="Pierwsze wspólne zdjęcie"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Tu jeszcze nie wiedzieliśmy, że skończy się ślubem 😄"</p>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">2018</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia2/800/600"
+              alt="Początki związku"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Początki związku – każda chwila była nowa i wyjątkowa."</p>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">2019</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia3/800/600"
+              alt="Pierwsze wakacje"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Pierwszy wspólny wyjazd – odkrywaliśmy świat razem."</p>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">2021</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia4/800/600"
+              alt="Śmieszne selfie"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Zdjęcie zrobione 5 minut przed zgubieniem się w górach 😂"</p>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">2023</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia5/800/600"
+              alt="Zaręczyny"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Dzień, w którym powiedzieliśmy sobie TAK 💍"</p>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">2026</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia6/800/600"
+              alt="Przygotowania do ślubu"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Przygotowania do ślubu – ekscytacja, nerwy i dużo miłości."</p>
+          </div>
+        </div>
+
+        <!-- 7 -->
+        <div class="historia-photo-item">
+          <div class="historia-photo__year">
+            <span class="historia-photo__year-num">Zawsze</span>
+            <div class="historia-photo__line"></div>
+          </div>
+          <div class="historia-photo__img-wrap">
+            <img
+              src="https://picsum.photos/seed/ak-historia7/800/600"
+              alt="Codzienne momenty"
+              loading="lazy"
+            />
+          </div>
+          <div class="historia-photo__content">
+            <p class="historia-photo__caption">„Codzienne chwile, które kochamy najbardziej."</p>
+          </div>
+        </div>
+
+      </div><!-- /.historia-timeline-photos -->
+    </div><!-- /.container -->
+  </section>
+
+  <!-- ══ Footer ═══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <span class="footer__brand">Asia &amp; Kuba</span>
+    <p class="footer__date">27 · 06 · 2026</p>
+    <p>Dziękujemy, że tworzycie z nami te wspomnienia ♥</p>
+  </footer>
+
+  <!-- ══ Upload Modal ═════════════════════════════════════════ -->
+  <div class="modal-overlay" id="uploadModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modalTitle">Prześlij zdjęcia 📸</h2>
+        <button class="modal__close" id="closeModal" aria-label="Zamknij">&times;</button>
+      </div>
+
+      <div
+        class="drop-zone"
+        id="dropZone"
+        role="button"
+        tabindex="0"
+        aria-label="Kliknij lub przeciągnij zdjęcia"
+      >
+        <div class="drop-zone__icon">☁️</div>
+        <p class="drop-zone__text">Kliknij lub przeciągnij zdjęcia tutaj</p>
+        <p class="drop-zone__hint">JPG, PNG, WEBP – maks. 20 MB na plik</p>
+        <input type="file" id="fileInput" accept="image/*" multiple hidden />
+      </div>
+
+      <div class="upload-preview" id="uploadPreview"></div>
+
+      <p class="upload-status" id="uploadStatus"></p>
+
+      <div class="upload-actions">
+        <button class="btn btn--outline" id="cancelUpload">Anuluj</button>
+        <button class="btn btn--primary" id="sendUpload" disabled>Wyślij zdjęcia</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/gallery.js"></script>
+</body>
+</html>

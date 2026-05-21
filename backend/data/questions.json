@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "question": "W którym roku poznali się Asia i Kuba?",
+    "options": ["2016", "2017", "2018"],
+    "correct": 2
+  },
+  {
+    "id": 2,
+    "question": "Kto pierwszy napisał wiadomość?",
+    "options": ["Asia", "Kuba", "Napisali jednocześnie"],
+    "correct": 1
+  },
+  {
+    "id": 3,
+    "question": "Gdzie odbyła się pierwsza randka?",
+    "options": ["Kawiarnia", "Kino", "Restauracja"],
+    "correct": 0
+  },
+  {
+    "id": 4,
+    "question": "Kto pierwszy powiedział „kocham Cię?",
+    "options": ["Asia", "Kuba", "Powiedzieli razem"],
+    "correct": 1
+  },
+  {
+    "id": 5,
+    "question": "Jakie jest ulubione jedzenie Kuby?",
+    "options": ["Pizza", "Sushi", "Schabowy z ziemniakami"],
+    "correct": 2
+  },
+  {
+    "id": 6,
+    "question": "Jaką kawę najczęściej wybiera Asia?",
+    "options": ["Latte", "Espresso", "Cappuccino"],
+    "correct": 0
+  },
+  {
+    "id": 7,
+    "question": "Kto dłużej szykuje się do wyjścia?",
+    "options": ["Asia", "Kuba", "Zawsze wychodzą na czas"],
+    "correct": 0
+  },
+  {
+    "id": 8,
+    "question": "Kto częściej mówi „zaraz wychodzimy?",
+    "options": ["Asia", "Kuba", "Oboje jednocześnie"],
+    "correct": 0
+  },
+  {
+    "id": 9,
+    "question": "Jakie jest nasze ulubione miejsce na wakacje?",
+    "options": ["Góry", "Morze", "Zagranica"],
+    "correct": 0
+  },
+  {
+    "id": 10,
+    "question": "Co najczęściej oglądamy razem wieczorami?",
+    "options": ["Seriale", "Filmy dokumentalne", "Sport"],
+    "correct": 0
+  },
+  {
+    "id": 11,
+    "question": "Kto jest większym śpiochem?",
+    "options": ["Asia", "Kuba", "Oboje tak samo"],
+    "correct": 1
+  },
+  {
+    "id": 12,
+    "question": "Kto pierwszy zasypia podczas filmu?",
+    "options": ["Asia", "Kuba", "Nikt – oboje są wytrwali"],
+    "correct": 1
+  },
+  {
+    "id": 13,
+    "question": "Jakie jest nasze wspólne hobby?",
+    "options": ["Podróże i hiking", "Gotowanie", "Fotografia"],
+    "correct": 0
+  },
+  {
+    "id": 14,
+    "question": "Kto ma lepszy gust muzyczny?",
+    "options": ["Asia", "Kuba", "Oboje – zupełnie inny"],
+    "correct": 2
+  },
+  {
+    "id": 15,
+    "question": "Jak miałby na imię nasz wymarzony pies lub kot?",
+    "options": ["Burek", "Figa", "Max"],
+    "correct": 1
+  },
+  {
+    "id": 16,
+    "question": "Kto częściej robi zdjęcia?",
+    "options": ["Asia", "Kuba", "Oboje po równo"],
+    "correct": 0
+  },
+  {
+    "id": 17,
+    "question": "Co najbardziej lubimy robić razem w weekendy?",
+    "options": ["Spacerować", "Gotować razem", "Oglądać filmy pod kocem"],
+    "correct": 2
+  },
+  {
+    "id": 18,
+    "question": "Gdzie były nasze zaręczyny?",
+    "options": ["W górach", "Nad morzem", "Za granicą"],
+    "correct": 0
+  },
+  {
+    "id": 19,
+    "question": "Kto jest bardziej romantyczny?",
+    "options": ["Asia", "Kuba", "Oboje tak samo"],
+    "correct": 1
+  },
+  {
+    "id": 20,
+    "question": "Jak długo jesteśmy razem?",
+    "options": ["6 lat", "7 lat", "8 lat"],
+    "correct": 2
+  }
+]

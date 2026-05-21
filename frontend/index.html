@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asia & Kuba – 27.06.2026</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ══ Navigation ══════════════════════════════════════════ -->
+  <nav class="nav" id="nav">
+    <div class="container nav__inner">
+      <span class="nav__brand">Asia & Kuba</span>
+      <ul class="nav__links">
+        <li><a href="#historia">Nasza historia</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#galeria">Galeria</a></li>
+        <li><a href="#stoly">Układ stołów</a></li>
+        <li><a href="#feedback">Opinie</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══ Hero ════════════════════════════════════════════════ -->
+  <!--
+    PHOTO PLACEHOLDER:
+    Replace the gradient background with your couple photo by adding:
+      style="background-image: url('assets/hero.jpg');"
+    to the .hero element, and place hero.jpg in frontend/assets/
+  -->
+  <section class="hero" style="background-image: url('assets/hero.jpg');">
+    <!-- <img class="hero__bg-img" src="assets/hero.jpg" alt="Asia i Kuba" /> -->
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+      <h1 class="hero__names">Asia &amp; Kuba</h1>
+      <div class="hero__divider">— ♥ —</div>
+      <p class="hero__date">27.06.2026</p>
+      <a href="#historia" class="btn btn--ghost">Nasza historia ↓</a>
+    </div>
+    <div class="hero__scroll" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+      <span>Przewiń</span>
+    </div>
+    <div class="hero__wave">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C360,0 1080,80 1440,40 L1440,60 L0,60 Z"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ══ Nasza Historia ═══════════════════════════════════════ -->
+  <section class="historia" id="historia">
+    <div class="container">
+
+      <div class="text-center">
+        <span class="section-label">Odkąd pamiętamy</span>
+        <h2 class="section-title">Nasza historia</h2>
+        <div class="section-divider"><span>♥</span></div>
+      </div>
+
+      <div class="historia__grid">
+
+        <!-- Timeline -->
+        <div>
+          <p class="historia__intro">
+            Niektóre historie pisze życie – nasza zaczęła się pewnego zimowego dnia
+            i od tamtej pory wspólnie tworzymy najpiękniejsze rozdziały.
+          </p>
+          <div class="timeline">
+            <div class="timeline__item">
+              <span class="timeline__date">06.01.2018</span>
+              <p class="timeline__title">Pierwsze spotkanie</p>
+              <p class="timeline__desc">Jedno spotkanie, które zmieniło wszystko.</p>
+            </div>
+            <div class="timeline__item">
+              <span class="timeline__date">06.04.2018</span>
+              <p class="timeline__title">Pierwszy pocałunek</p>
+              <p class="timeline__desc">Ten moment zapamiętamy na zawsze.</p>
+            </div>
+            <div class="timeline__item">
+              <span class="timeline__date">15.04.2023</span>
+              <p class="timeline__title">Zaręczyny</p>
+              <p class="timeline__desc">Padło to jedno magiczne „tak"!</p>
+            </div>
+            <div class="timeline__item">
+              <span class="timeline__date">27.06.2026</span>
+              <p class="timeline__title">Ślub</p>
+              <p class="timeline__desc">Początek naszego nowego rozdziału.</p>
+            </div>
+          </div>
+          <p class="historia__footer">
+            Nasza historia trwa już 8 lat<br>
+            <small style="font-size:.9rem;color:var(--text-light)">i wiemy, że to dopiero początek naszej wspólnej przygody!</small>
+          </p>
+        </div>
+
+        <!-- Gallery CTA -->
+        <div class="gallery-cta">
+          <div class="gallery-cta__icon">📸</div>
+          <h3 class="gallery-cta__title">Twórz z nami naszą pamiątkową galerię!</h3>
+          <p class="gallery-cta__body">
+            Wasze zdjęcia to dla nas bezcenny skarb. Uchwyćcie chwile z naszego ślubu,
+            wesela i wszystkich momentów spędzonych razem z nami.
+          </p>
+          <p class="gallery-cta__cta">Dodawajcie zdjęcia – twórzmy razem naszą wspólną historię!</p>
+          <div class="gallery-cta__icons">
+            <div class="gallery-cta__step">
+              <div class="gallery-cta__step-icon">📱</div>
+              <strong>Rób zdjęcia</strong>
+              <p>wesele, detale,<br>zabawa, emocje<br>i nie tylko!</p>
+            </div>
+            <div class="gallery-cta__step">
+              <div class="gallery-cta__step-icon">☁️</div>
+              <strong>Dodawaj</strong>
+              <p>wrzucaj zdjęcia<br>na naszą stronę –<br>to proste!</p>
+            </div>
+            <div class="gallery-cta__step">
+              <div class="gallery-cta__step-icon">💞</div>
+              <strong>Twórz wspomnienia</strong>
+              <p>razem stworzymy<br>galerię, do której<br>będziemy wracać.</p>
+            </div>
+          </div>
+          <a href="galeria.html" class="btn btn--primary">Dodaj zdjęcie ♥</a>
+        </div>
+
+      </div><!-- /.historia__grid -->
+    </div><!-- /.container -->
+  </section>
+
+  <!-- ══ Quiz teaser ══════════════════════════════════════════ -->
+  <section class="quiz-teaser" id="quiz">
+    <div class="container">
+      <div class="quiz-teaser__header">
+        <span class="section-label">Mini Quiz o Nas</span>
+        <h2 class="section-title">Jak dobrze nas znasz?</h2>
+        <div class="section-divider"><span>♥</span></div>
+        <p class="quiz-teaser__desc">
+          Sprawdźcie swoją wiedzę o parze młodej! 20 pytań – dobra zabawa gwarantowana!
+        </p>
+      </div>
+
+      <div class="quiz-teaser__grid" id="quizPreviewGrid">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="quiz-teaser__cta">
+        <a href="quiz.html" class="btn btn--primary">Sprawdź się! →</a>
+        <span class="quiz-teaser__luck">Powodzenia! ♥</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Photos teaser ════════════════════════════════════════ -->
+  <section class="photos-teaser" id="galeria">
+    <div class="container">
+      <div class="photos-teaser__header">
+        <span class="section-label">Wspólne chwile</span>
+        <h2 class="section-title">Pamiątkowa galeria</h2>
+        <div class="section-divider"><span>♥</span></div>
+        <p style="color:var(--text-mid);max-width:480px;margin:0 auto 2rem;">
+          Każde zdjęcie to wspomnienie, które chcemy zachować na zawsze.
+          Dołącz do nas i uwiecznij tę wyjątkową chwilę!
+        </p>
+      </div>
+
+      <div class="photos-teaser__grid" id="photoTeaser">
+        <!-- Filled by JS: 5 asset photos + up to 10 newest uploads -->
+      </div>
+
+      <div class="photos-teaser__cta">
+        <a href="galeria.html" class="btn btn--primary">Zobacz galerię i dodaj zdjęcia ♥</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Seating Teaser ═════════════════════════════════════ -->
+  <section class="seating-teaser" id="stoly">
+    <div class="container seating-teaser__wrap">
+      <div>
+        <span class="section-label">Organizacja sali</span>
+        <h2 class="section-title">Układ stołów</h2>
+        <div class="section-divider"><span>♥</span></div>
+        <p class="seating-teaser__desc">
+          Sprawdź, przy którym stole i miejscu siedzisz.
+          Wyszukaj swoje imię i nazwisko na interaktywnej mapie sali.
+        </p>
+        <a href="uklad-stolow.html" class="btn btn--primary">Otwórz mapę miejsc</a>
+        <a href="admin-stoly.html" class="btn btn--outline" style="margin-left:.6rem;">Panel admina</a>
+      </div>
+      <div class="seating-teaser__mini" aria-hidden="true">
+        <div class="seating-teaser__mini-table"></div>
+        <div class="seating-teaser__mini-table"></div>
+        <div class="seating-teaser__mini-table"></div>
+        <div class="seating-teaser__mini-table"></div>
+        <div class="seating-teaser__mini-table"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Feedback ═══════════════════════════════════════════ -->
+  <section class="feedback" id="feedback">
+    <div class="container">
+      <span class="section-label text-center">Twoja opinia</span>
+      <h2 class="section-title text-center">Napisz nam kilka słów</h2>
+      <div class="section-divider"><span>♥</span></div>
+
+      <div class="feedback__card">
+        <p class="feedback__desc">
+          Napisz co Ci się podobało / nie podobało, co mogliśmy zrobić lepiej,
+          czego nam życzysz na dalsze wspólne lata.
+        </p>
+
+        <form class="feedback__form" id="feedbackForm">
+          <div>
+            <label for="feedbackName">Podpis (opcjonalnie)</label>
+            <input id="feedbackName" name="name" type="text" maxlength="80" placeholder="Np. Ania i Piotr" />
+          </div>
+          <div>
+            <label for="feedbackMessage">Twoja wiadomość</label>
+            <textarea id="feedbackMessage" name="message" maxlength="1500" required placeholder="Napisz swoją opinię..."></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary">Wyślij opinię ♥</button>
+          <p class="feedback__status" id="feedbackStatus"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Footer ═══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <span class="footer__brand">Asia &amp; Kuba</span>
+    <p class="footer__date">27 · 06 · 2026</p>
+    <p>Z miłością czekamy na ten dzień ♥</p>
+  </footer>
+
+  <script>
+    // ── Sticky nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    // ── Scroll animations (Intersection Observer)
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.15 }
+    );
+    document.querySelectorAll('.timeline__item').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 0.1}s`;
+      observer.observe(el);
+    });
+
+    // ── Photos teaser: 5 asset photos + up to 10 newest uploads
+    const ASSET_PHOTOS_TEASER = [
+      { url: 'assets/photo1.jpg', uploadedAt: '2026-06-27T06:00:00.000Z' },
+      { url: 'assets/photo2.jpg', uploadedAt: '2026-06-27T06:01:00.000Z' },
+      { url: 'assets/photo3.jpg', uploadedAt: '2026-06-27T06:02:00.000Z' },
+      { url: 'assets/photo4.jpg', uploadedAt: '2026-06-27T06:03:00.000Z' },
+      { url: 'assets/photo5.jpg', uploadedAt: '2026-06-27T06:04:00.000Z' },
+    ];
+
+    async function loadPhotoTeaser() {
+      const teaserGrid = document.getElementById('photoTeaser');
+      try {
+        const res  = await fetch('/api/photos');
+        const data = await res.json();
+        const merged = [...data.photos.slice(0, 10), ...ASSET_PHOTOS_TEASER]
+          .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+        teaserGrid.innerHTML = merged
+          .map(p => `
+            <div class="photos-teaser__thumb">
+              <img src="${p.url}" alt="Zdjęcie z wesela" loading="lazy"
+                onerror="this.closest('.photos-teaser__thumb').style.display='none'" />
+            </div>`)
+          .join('');
+      } catch {
+        // fallback: show asset photos only
+        teaserGrid.innerHTML = ASSET_PHOTOS_TEASER
+          .map(p => `
+            <div class="photos-teaser__thumb">
+              <img src="${p.url}" alt="Zdjęcie z wesela" loading="lazy"
+                onerror="this.closest('.photos-teaser__thumb').style.display='none'" />
+            </div>`)
+          .join('');
+      }
+    }
+
+    loadPhotoTeaser();
+
+    // ── Feedback form submit
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackStatus = document.getElementById('feedbackStatus');
+    feedbackForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const name = document.getElementById('feedbackName').value.trim();
+      const message = document.getElementById('feedbackMessage').value.trim();
+
+      if (!message) {
+        feedbackStatus.textContent = 'Wpisz wiadomość przed wysłaniem.';
+        feedbackStatus.className = 'feedback__status feedback__status--error';
+        return;
+      }
+
+      feedbackStatus.textContent = 'Wysyłanie...';
+      feedbackStatus.className = 'feedback__status';
+
+      try {
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, message }),
+        });
+
+        if (!response.ok) {
+          throw new Error('submit_failed');
+        }
+
+        feedbackForm.reset();
+        feedbackStatus.textContent = 'Dziękujemy za Twoją opinię! ♥';
+        feedbackStatus.className = 'feedback__status feedback__status--ok';
+      } catch {
+        feedbackStatus.textContent = 'Nie udało się wysłać opinii. Spróbuj ponownie.';
+        feedbackStatus.className = 'feedback__status feedback__status--error';
+      }
+    });
+
+    const questions = [
+      'W którym roku poznali się Asia i Kuba?',
+      'Kto pierwszy napisał wiadomość?',
+      'Gdzie odbyła się pierwsza randka?',
+      'Kto pierwszy powiedział „kocham Cię"?',
+      'Jakie jest ulubione jedzenie Kuby?',
+      'Jaką kawę najczęściej wybiera Asia?',
+      'Kto dłużej szykuje się do wyjścia?',
+      'Kto częściej mówi „zaraz wychodzimy"?',
+    ];
+    const grid = document.getElementById('quizPreviewGrid');
+    questions.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'quiz-q-card';
+      card.innerHTML = `<span class="quiz-q-num">${i + 1}</span><span>${q}</span>`;
+      grid.appendChild(card);
+      observer.observe(card);
+      card.style.transitionDelay = `${i * 0.06}s`;
+    });
+  </script>
+</body>
+</html>

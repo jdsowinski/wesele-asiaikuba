@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin stołów – Asia & Kuba</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="nav__brand">Asia &amp; Kuba</a>
+      <a href="index.html" class="nav__back">← Strona główna</a>
+      <ul class="nav__links">
+        <li><a href="uklad-stolow.html">Mapa miejsc</a></li>
+        <li><a href="index.html#stoly">Układ stołów</a></li>
+        <li><a href="index.html#feedback">Opinie</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <span class="section-label">Panel administratora</span>
+    <h1 class="section-title">Zarządzanie miejscami</h1>
+    <p>Dodawaj gości, przeciągaj ich między miejscami i edytuj nazwiska po usadzeniu.</p>
+  </header>
+
+  <section class="seating-admin">
+    <div class="container">
+      <div class="admin-toolbar">
+        <input id="newGuestName" type="text" placeholder="Wpisz imię i nazwisko gościa" />
+        <button class="btn btn--primary" id="addGuestBtn" type="button">Dodaj na pierwsze wolne miejsce</button>
+        <button class="btn btn--outline" id="exportBtn" type="button">Eksportuj JSON</button>
+        <button class="btn btn--outline" id="resetBtn" type="button">Reset zmian lokalnych</button>
+        <p class="admin-status" id="adminStatus"></p>
+      </div>
+
+      <div class="admin-tables" id="adminTables"></div>
+    </div>
+  </section>
+
+  <div class="admin-modal-overlay" id="adminEditModal" aria-hidden="true">
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="adminEditTitle">
+      <h2 class="admin-modal__title" id="adminEditTitle">Edytuj gościa</h2>
+      <p class="admin-modal__meta" id="adminEditSeatMeta"></p>
+      <input id="adminEditInput" type="text" placeholder="Imię i nazwisko" maxlength="120" />
+      <p class="admin-modal__hint">Zostaw puste, aby oznaczyć jako wolne miejsce.</p>
+      <div class="admin-modal__actions">
+        <button class="btn btn--outline" id="adminEditCancel" type="button">Anuluj</button>
+        <button class="btn btn--primary" id="adminEditSave" type="button">Zapisz</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span class="footer__brand">Asia &amp; Kuba</span>
+    <p class="footer__date">27 · 06 · 2026</p>
+  </footer>
+
+  <script src="js/seating-admin.js"></script>
+</body>
+</html>

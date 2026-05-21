@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Quiz – Asia & Kuba</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ══ Navigation ══════════════════════════════════════════ -->
+  <nav class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="nav__brand">Asia &amp; Kuba</a>
+      <a href="index.html" class="nav__back">← Strona główna</a>
+      <ul class="nav__links">
+        <li><a href="index.html#historia">Historia</a></li>
+        <li><a href="index.html#galeria">Galeria</a></li>
+        <li><a href="index.html#stoly">Układ stołów</a></li>
+        <li><a href="index.html#feedback">Opinie</a></li>
+        <li><a href="galeria.html">Prześlij zdjęcia</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══ Page header ═════════════════════════════════════════ -->
+  <header class="page-header">
+    <span class="section-label">Sprawdź się!</span>
+    <h1 class="section-title">Jak dobrze nas znasz?</h1>
+    <p>20 pytań o Asi i Kubie – dobra zabawa gwarantowana!<br>Zaznacz odpowiedzi i sprawdź swój wynik.</p>
+  </header>
+
+  <!-- ══ Quiz form ════════════════════════════════════════════ -->
+  <section class="quiz-form-section" id="quizSection">
+    <div class="container">
+
+      <div class="quiz-progress">
+        <span class="quiz-progress__label">Odpowiedziano:</span>
+        <div class="quiz-progress__bar">
+          <div class="quiz-progress__fill" id="progressFill"></div>
+        </div>
+        <span class="quiz-progress__count" id="progressCount">0 / 20</span>
+      </div>
+
+      <form id="quizForm" novalidate>
+        <div class="quiz-questions-grid" id="questionsContainer">
+          <!-- Filled by quiz.js -->
+          <p style="text-align:center;color:var(--text-light);padding:2rem 0;">
+            Ładowanie pytań…
+          </p>
+        </div>
+
+        <div class="quiz-submit">
+          <p id="quizHint" style="display:none;color:#dc3545;">
+            Proszę odpowiedzieć na wszystkie 20 pytań przed wysłaniem.
+          </p>
+          <button type="submit" class="btn btn--primary" id="submitBtn">
+            Wyślij odpowiedzi ♥
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══ Results (shown after submit) ════════════════════════ -->
+  <section class="quiz-results" id="resultsSection">
+    <div class="container">
+
+      <!-- Score card -->
+      <div class="score-card" id="scoreCard">
+        <p class="score-card__label">Twój wynik</p>
+        <div>
+          <span class="score-card__number" id="scoreNum">–</span>
+          <span class="score-card__total"> / 20</span>
+        </div>
+        <p class="score-card__sub" id="scoreMsg"></p>
+        <p class="score-card__guests" id="guestsInfo"></p>
+      </div>
+
+      <div class="text-center" style="margin-bottom:2.5rem;">
+        <span class="section-label">Szczegółowe wyniki</span>
+        <h2 class="section-title" style="font-size:2rem;">Jak odpowiadali goście?</h2>
+        <div class="section-divider"><span>♥</span></div>
+      </div>
+
+      <div class="result-items" id="resultItems">
+        <!-- Filled by quiz.js -->
+      </div>
+
+      <div style="text-align:center;margin-top:3rem;">
+        <a href="index.html" class="btn btn--outline" style="margin-right:.75rem;">← Strona główna</a>
+        <a href="galeria.html" class="btn btn--primary">Dodaj zdjęcia ♥</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Footer ═══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <span class="footer__brand">Asia &amp; Kuba</span>
+    <p class="footer__date">27 · 06 · 2026</p>
+  </footer>
+
+  <script src="js/quiz.js"></script>
+</body>
+</html>

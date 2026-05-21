@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Układ stołów – Asia & Kuba</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="nav__brand">Asia &amp; Kuba</a>
+      <a href="index.html" class="nav__back">← Strona główna</a>
+      <ul class="nav__links">
+        <li><a href="index.html#historia">Historia</a></li>
+        <li><a href="index.html#quiz">Quiz</a></li>
+        <li><a href="index.html#galeria">Galeria</a></li>
+        <li><a href="admin-stoly.html">Panel admina</a></li>
+        <li><a href="index.html#feedback">Opinie</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <span class="section-label">Plan sali</span>
+    <h1 class="section-title">Układ stołów</h1>
+    <p>Wpisz imię i nazwisko, aby znaleźć swoje miejsce przy stole.</p>
+  </header>
+
+  <section class="seating-page">
+    <div class="container">
+      <div class="seating-search">
+        <input id="guestSearch" type="text" placeholder="Np. Jan Kowalski" autocomplete="off" />
+        <button class="btn btn--primary" id="searchBtn" type="button">Szukaj miejsca</button>
+        <button class="btn btn--outline" id="clearBtn" type="button">Wyczyść</button>
+        <div class="seating-suggestions" id="guestSuggestions" aria-live="polite"></div>
+        <p class="seating-search__status" id="searchStatus"></p>
+      </div>
+
+      <div class="seat-map" id="seatMap">
+        <div class="seat-map__canvas" id="seatMapCanvas"></div>
+      </div>
+
+      <div class="seat-legend">
+        <span><i></i> Wolne/standardowe miejsce</span>
+        <span><i class="match"></i> Wynik wyszukiwania</span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span class="footer__brand">Asia &amp; Kuba</span>
+    <p class="footer__date">27 · 06 · 2026</p>
+  </footer>
+
+  <script src="js/seating.js"></script>
+</body>
+</html>

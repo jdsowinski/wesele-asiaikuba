@@ -1,0 +1,276 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Wedding app infrastructure (S3 + CloudFront + API Gateway + Lambda + DynamoDB)
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: wesele-asiaikuba
+  FrontendDomain:
+    Type: String
+    Default: wesele.asiaikuba.pl
+  ApiDomain:
+    Type: String
+    Default: api-wesele.asiaikuba.pl
+  CloudFrontCertificateArn:
+    Type: String
+    Default: ''
+    Description: ACM cert ARN in us-east-1 for wesele.asiaikuba.pl
+  ApiRegionalCertificateArn:
+    Type: String
+    Default: ''
+    Description: ACM cert ARN in current region for api-wesele.asiaikuba.pl
+
+Conditions:
+  HasCfCert: !Not [!Equals [!Ref CloudFrontCertificateArn, '']]
+  HasApiCert: !Not [!Equals [!Ref ApiRegionalCertificateArn, '']]
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    MemorySize: 512
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        QUIZ_TABLE: !Ref QuizStatsTable
+        FEEDBACK_TABLE: !Ref FeedbackTable
+        SEATING_TABLE: !Ref SeatingTable
+        PHOTOS_TABLE: !Ref PhotosTable
+        UPLOADS_BUCKET: !Ref UploadsBucket
+
+Resources:
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${AWS::AccountId}-frontend'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${AWS::AccountId}-uploads'
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, PUT, POST, HEAD]
+            AllowedOrigins: ['*']
+            ExposedHeaders: [ETag]
+            MaxAge: 3600
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${ProjectName}-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+
+  QuizStatsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TableName: !Sub '${ProjectName}-quiz-stats'
+      AttributeDefinitions:
+        - AttributeName: questionId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: questionId
+          KeyType: HASH
+
+  FeedbackTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TableName: !Sub '${ProjectName}-feedback'
+      AttributeDefinitions:
+        - AttributeName: feedbackId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: feedbackId
+          KeyType: HASH
+
+  SeatingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TableName: !Sub '${ProjectName}-seating'
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  PhotosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TableName: !Sub '${ProjectName}-photos'
+      AttributeDefinitions:
+        - AttributeName: photoId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: photoId
+          KeyType: HASH
+
+  WeddingHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowHeaders: ['*']
+        AllowMethods: [GET, POST, PUT, OPTIONS]
+        AllowOrigins: ['*']
+
+  WeddingApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-api'
+      CodeUri: src/
+      Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref QuizStatsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FeedbackTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SeatingTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PhotosTable
+        - S3CrudPolicy:
+            BucketName: !Ref UploadsBucket
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WeddingHttpApi
+            Path: /api
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WeddingHttpApi
+            Path: /api/{proxy+}
+            Method: ANY
+
+  ApiDomainName:
+    Type: AWS::ApiGatewayV2::DomainName
+    Condition: HasApiCert
+    Properties:
+      DomainName: !Ref ApiDomain
+      DomainNameConfigurations:
+        - EndpointType: REGIONAL
+          CertificateArn: !Ref ApiRegionalCertificateArn
+
+  ApiDomainMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Condition: HasApiCert
+    Properties:
+      ApiId: !Ref WeddingHttpApi
+      DomainName: !Ref ApiDomainName
+      Stage: prod
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        Aliases: !If [HasCfCert, [!Ref FrontendDomain], !Ref AWS::NoValue]
+        Origins:
+          - Id: FrontendS3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref OriginAccessControl
+          - Id: ApiOrigin
+            DomainName: !Sub '${WeddingHttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: /prod
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              HTTPSPort: 443
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendS3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+                - Content-Type
+                - Origin
+              Cookies:
+                Forward: all
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        ViewerCertificate: !If
+          - HasCfCert
+          - AcmCertificateArn: !Ref CloudFrontCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+
+Outputs:
+  FrontendBucketName:
+    Value: !Ref FrontendBucket
+  UploadsBucketName:
+    Value: !Ref UploadsBucket
+  CloudFrontDomainName:
+    Value: !GetAtt CloudFrontDistribution.DomainName
+  CloudFrontDistributionId:
+    Value: !Ref CloudFrontDistribution
+  ApiInvokeUrl:
+    Value: !Sub 'https://${WeddingHttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
+  ApiCustomDomainTarget:
+    Condition: HasApiCert
+    Value: !GetAtt ApiDomainName.RegionalDomainName
+  ApiCustomDomainHostedZoneId:
+    Condition: HasApiCert
+    Value: !GetAtt ApiDomainName.RegionalHostedZoneId
